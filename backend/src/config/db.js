@@ -62,7 +62,7 @@ class DBProvider {
 
     // Support RETURNING id dynamically on SQL INSERT statements to read inserted IDs safely and natively
     const trimmed = pgSql.trim().toUpperCase();
-    if (trimmed.startsWith('INSERT') && !trimmed.includes('RETURNING')) {
+    if (trimmed.startsWith('INSERT') && !trimmed.includes('RETURNING') && !trimmed.includes('SYSTEM_SETTINGS')) {
       pgSql += ' RETURNING id';
     }
 

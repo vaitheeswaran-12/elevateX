@@ -44,14 +44,16 @@ import RecruiterCandidatesView from './pages/recruiter/CandidatesView.jsx';
 import RecruiterProfileView from './pages/recruiter/ProfileView.jsx';
 import RecruiterAnalyticsView from './pages/recruiter/AnalyticsView.jsx';
 
-function AdminDashboard() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Platform Administration</h1>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">Successfully loaded admin command center!</p>
-    </div>
-  );
-}
+// Admin Dashboard Sub-Routes & Layout
+import AdminDashboardLayout from './components/AdminDashboardLayout.jsx';
+import AdminHomeView from './pages/admin/HomeView.jsx';
+import AdminUsersView from './pages/admin/UsersView.jsx';
+import AdminCoursesView from './pages/admin/CoursesView.jsx';
+import AdminJobsView from './pages/admin/JobsView.jsx';
+import AdminCertificatesView from './pages/admin/CertificatesView.jsx';
+import AdminAnalyticsView from './pages/admin/AnalyticsView.jsx';
+import AdminAuditLogsView from './pages/admin/AuditLogsView.jsx';
+import AdminSettingsView from './pages/admin/SettingsView.jsx';
 
 function App() {
   return (
@@ -217,7 +219,63 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                {/* Admin Dashboard Sub-Routes with Route Protections */}
+                <Route path="/admin-dashboard" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminHomeView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/users" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminUsersView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/courses" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminCoursesView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/jobs" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminJobsView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/certificates" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminCertificatesView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/analytics" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminAnalyticsView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/logs" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminAuditLogsView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin-dashboard/settings" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboardLayout>
+                      <AdminSettingsView />
+                    </AdminDashboardLayout>
+                  </ProtectedRoute>
+                } />
 
                 {/* Redirect all unmatched routes back to Home */}
                 <Route path="*" element={<Navigate to="/" replace />} />

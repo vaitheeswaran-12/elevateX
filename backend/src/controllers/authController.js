@@ -57,12 +57,36 @@ export async function login(req, res, next) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.is_banned === 1) {
+      // Log failed banned login
+      await db.run(
+        'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+        [uuidv4(), user.id, user.email, 'LOGIN_BANNED', 'Login blocked due to banned status.', req.ip || '127.0.0.1']
+      );
+      return res.status(403).json({ message: 'Your account has been banned. Please contact platform support.' });
+    }
+
+    if (user.is_active === 0) {
+      // Log failed inactive login
+      await db.run(
+        'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+        [uuidv4(), user.id, user.email, 'LOGIN_INACTIVE', 'Login blocked due to deactivated account.', req.ip || '127.0.0.1']
+      );
+      return res.status(403).json({ message: 'Your account is deactivated. Please contact platform support.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const token = generateToken(user);
+
+    // Log successful login
+    await db.run(
+      'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+      [uuidv4(), user.id, user.email, 'LOGIN', `User logged in successfully (${user.role}).`, req.ip || '127.0.0.1']
+    );
 
     res.status(200).json({
       message: 'Login successful!',
@@ -162,7 +186,29 @@ export async function googleLogin(req, res, next) {
       user.is_verified = 1;
     }
 
+    if (user.is_banned === 1) {
+      await db.run(
+        'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+        [uuidv4(), user.id, user.email, 'LOGIN_BANNED', 'Google Login blocked due to banned status.', req.ip || '127.0.0.1']
+      );
+      return res.status(403).json({ message: 'Your account has been banned. Please contact platform support.' });
+    }
+
+    if (user.is_active === 0) {
+      await db.run(
+        'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+        [uuidv4(), user.id, user.email, 'LOGIN_INACTIVE', 'Google Login blocked due to deactivated account.', req.ip || '127.0.0.1']
+      );
+      return res.status(403).json({ message: 'Your account is deactivated. Please contact platform support.' });
+    }
+
     const token = generateToken(user);
+
+    // Log successful Google login
+    await db.run(
+      'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+      [uuidv4(), user.id, user.email, 'LOGIN_GOOGLE', `User logged in via Google (${user.role}).`, req.ip || '127.0.0.1']
+    );
 
     res.status(200).json({
       message: 'Google Sign-In successful!',

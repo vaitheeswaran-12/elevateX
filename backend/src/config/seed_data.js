@@ -20,6 +20,8 @@ async function seed() {
     await db.run('DELETE FROM courses');
     await db.run('DELETE FROM profiles');
     await db.run('DELETE FROM company_profiles');
+    await db.run('DELETE FROM audit_logs');
+    await db.run('DELETE FROM system_settings');
     await db.run('DELETE FROM users');
 
     // 1. Seed Users
@@ -183,6 +185,41 @@ async function seed() {
       );
     }
     console.log(' - Notifications seeded');
+
+    // 11. Seed Audit Logs
+    const auditLogs = [
+      { id: 'al_1', user_id: 'u_admin_1', email: 'admin@ascendiq.com', action: 'LOGIN', desc: 'Admin logged into system control panel.', ip: '127.0.0.1' },
+      { id: 'al_2', user_id: 'u_admin_1', email: 'admin@ascendiq.com', action: 'COURSE_APPROVE', desc: 'Approved course Generative AI & LLM Architecture.', ip: '127.0.0.1' },
+      { id: 'al_3', user_id: 'u_instructor_1', email: 'sarah@ascendiq.com', action: 'LOGIN', desc: 'Instructor session started.', ip: '192.168.1.15' },
+      { id: 'al_4', user_id: 'u_student_1', email: 'student@ascendiq.com', action: 'LOGIN', desc: 'Student user logged in.', ip: '192.168.1.100' }
+    ];
+
+    for (const al of auditLogs) {
+      await db.run(
+        'INSERT INTO audit_logs (id, user_id, user_email, action_type, description, ip_address) VALUES (?, ?, ?, ?, ?, ?)',
+        [al.id, al.user_id, al.email, al.action, al.desc, al.ip]
+      );
+    }
+    console.log(' - Audit Logs seeded');
+
+    // 12. Seed System Settings
+    const settings = [
+      { key: 'platform_name', value: 'AscendIQ' },
+      { key: 'support_email', value: 'support@ascendiq.com' },
+      { key: 'maintenance_mode', value: 'false' },
+      { key: 'commission_rate', value: '15' },
+      { key: 'email_template_verification', value: 'Hello {{name}}, please verify your AscendIQ email using code {{code}}.' },
+      { key: 'email_template_welcome', value: 'Welcome to AscendIQ, {{name}}! Learn, build and get hired with us.' },
+      { key: 'email_template_reset', value: 'Hi {{name}}, reset your password using the link: {{link}}.' }
+    ];
+
+    for (const s of settings) {
+      await db.run(
+        'INSERT INTO system_settings (key, value) VALUES (?, ?)',
+        [s.key, s.value]
+      );
+    }
+    console.log(' - System Settings seeded');
 
     console.log('Seeding completed successfully!');
   } catch (err) {

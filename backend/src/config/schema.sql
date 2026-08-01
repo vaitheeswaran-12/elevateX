@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     is_verified INTEGER DEFAULT 0 CHECK(is_verified IN (0, 1)),
     verification_token TEXT,
     reset_token TEXT,
+    is_active INTEGER DEFAULT 1 CHECK(is_active IN (0, 1)),
+    is_banned INTEGER DEFAULT 0 CHECK(is_banned IN (0, 1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -62,6 +64,8 @@ CREATE TABLE IF NOT EXISTS courses (
     duration TEXT NOT NULL, -- e.g., "12 Hours"
     rating REAL DEFAULT 5.0,
     reviews_count INTEGER DEFAULT 0,
+    approval_status TEXT DEFAULT 'Approved' CHECK(approval_status IN ('Pending', 'Approved', 'Rejected')),
+    is_featured INTEGER DEFAULT 0 CHECK(is_featured IN (0, 1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -136,6 +140,7 @@ CREATE TABLE IF NOT EXISTS certificates (
     completion_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     certificate_id TEXT NOT NULL UNIQUE,
     qr_code_data TEXT NOT NULL,
+    is_revoked INTEGER DEFAULT 0 CHECK(is_revoked IN (0, 1)),
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
@@ -157,6 +162,9 @@ CREATE TABLE IF NOT EXISTS jobs (
     workplace_type TEXT DEFAULT 'Remote',
     application_deadline TIMESTAMP,
     status TEXT DEFAULT 'Published' CHECK(status IN ('Draft', 'Published')),
+    approval_status TEXT DEFAULT 'Approved' CHECK(approval_status IN ('Pending', 'Approved', 'Rejected')),
+    is_flagged INTEGER DEFAULT 0 CHECK(is_flagged IN (0, 1)),
+    flag_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (recruiter_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -210,8 +218,26 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- 16. Audit Logs Table
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT,
+    user_email TEXT,
+    action_type TEXT NOT NULL, -- e.g. 'LOGIN', 'USER_BAN', 'COURSE_APPROVE', 'SYSTEM_UPDATE'
+    description TEXT NOT NULL,
+    ip_address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- 17. System Settings Table
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
 -- ==========================================
--- 16. Database Indexes for Foreign Keys (Production performance)
+-- 18. Database Indexes for Foreign Keys (Production performance)
 -- ==========================================
 CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON courses(instructor_id);
 CREATE INDEX IF NOT EXISTS idx_course_modules_course_id ON course_modules(course_id);
@@ -224,3 +250,5 @@ CREATE INDEX IF NOT EXISTS idx_jobs_recruiter_id ON jobs(recruiter_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_course_id ON reviews(course_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_student_id ON reviews(student_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action_type ON audit_logs(action_type);
