@@ -23,6 +23,7 @@ export default [
         localStorage: 'readonly',
         console: 'readonly',
         alert: 'readonly',
+        confirm: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
@@ -32,7 +33,8 @@ export default [
         navigator: 'readonly',
         FormData: 'readonly',
         FileReader: 'readonly',
-        URL: 'readonly'
+        URL: 'readonly',
+        URLSearchParams: 'readonly'
       }
     },
     plugins: {

@@ -35,14 +35,15 @@ import InstructorQuizBuilderView from './pages/instructor/QuizBuilderView.jsx';
 import InstructorAssignmentsView from './pages/instructor/AssignmentsView.jsx';
 import InstructorStudentsListView from './pages/instructor/StudentsListView.jsx';
 import InstructorReviewsView from './pages/instructor/ReviewsView.jsx';
-function RecruiterDashboard() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Recruitment Pipeline</h1>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">Successfully loaded recruiter portal!</p>
-    </div>
-  );
-}
+
+// Recruiter Dashboard Sub-Routes
+import RecruiterDashboardLayout from './components/RecruiterDashboardLayout.jsx';
+import RecruiterHomeView from './pages/recruiter/HomeView.jsx';
+import RecruiterJobsView from './pages/recruiter/JobsView.jsx';
+import RecruiterCandidatesView from './pages/recruiter/CandidatesView.jsx';
+import RecruiterProfileView from './pages/recruiter/ProfileView.jsx';
+import RecruiterAnalyticsView from './pages/recruiter/AnalyticsView.jsx';
+
 function AdminDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -179,7 +180,43 @@ function App() {
                     </InstructorDashboardLayout>
                   </ProtectedRoute>
                 } />
-                <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
+                {/* Recruiter Dashboard Sub-Routes with Route Protections */}
+                <Route path="/recruiter-dashboard" element={
+                  <ProtectedRoute allowedRoles={['recruiter']}>
+                    <RecruiterDashboardLayout>
+                      <RecruiterHomeView />
+                    </RecruiterDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/recruiter-dashboard/jobs" element={
+                  <ProtectedRoute allowedRoles={['recruiter']}>
+                    <RecruiterDashboardLayout>
+                      <RecruiterJobsView />
+                    </RecruiterDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/recruiter-dashboard/candidates" element={
+                  <ProtectedRoute allowedRoles={['recruiter']}>
+                    <RecruiterDashboardLayout>
+                      <RecruiterCandidatesView />
+                    </RecruiterDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/recruiter-dashboard/profile" element={
+                  <ProtectedRoute allowedRoles={['recruiter']}>
+                    <RecruiterDashboardLayout>
+                      <RecruiterProfileView />
+                    </RecruiterDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/recruiter-dashboard/analytics" element={
+                  <ProtectedRoute allowedRoles={['recruiter']}>
+                    <RecruiterDashboardLayout>
+                      <RecruiterAnalyticsView />
+                    </RecruiterDashboardLayout>
+                  </ProtectedRoute>
+                } />
+
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
                 {/* Redirect all unmatched routes back to Home */}

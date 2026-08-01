@@ -127,18 +127,39 @@ async function seed() {
     );
     console.log(' - Certificates seeded');
 
-    // 8. Seed Jobs
+    // 8a. Seed Company Profile
+    await db.run(
+      `INSERT INTO company_profiles (id, user_id, company_name, logo_url, website, about, industry, location, company_size, headquarters, linkedin_url, twitter_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'cp_recruiter_1',
+        'u_recruiter_1',
+        'NeuralCorp Systems',
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80',
+        'https://neuralcorp.systems',
+        'Pioneering sovereign intelligence networks, next-generation deep learning platforms, and decentralized autonomous cognitive loops.',
+        'AI & Deep Learning Labs',
+        'San Francisco, CA',
+        '51-200 employees',
+        'San Francisco, CA',
+        'https://linkedin.com/company/neuralcorp',
+        'https://twitter.com/neuralcorp'
+      ]
+    );
+    console.log(' - Company Profile seeded');
+
+    // 8b. Seed Jobs
     const jobs = [
-      { id: 'j_1', recruiter_id: 'u_recruiter_1', company: 'NeuralCorp Systems', logo: '⚡', title: 'AI Resident Engineer (LLM Tuning)', desc: 'Develop deep learning architectures, leverage PyTorch and HuggingFace Transformers, and implement sovereign AI models.', location: 'San Francisco, CA (Remote)', skills: 'Python, PyTorch, Transformers, LLMs', salary: '$140,000 - $180,000', type: 'Job' },
-      { id: 'j_2', recruiter_id: 'u_recruiter_1', company: 'SaaSify Platforms', logo: '🪐', title: 'React / Frontend Developer Intern', desc: 'Collaborate with design and product teams to implement beautiful responsive interfaces with React, Tailwind CSS, and Vite.', location: 'Austin, TX (Onsite)', skills: 'React, Tailwind CSS, JavaScript, Vite', salary: '$40 - $55 / hour', type: 'Internship' },
-      { id: 'j_3', recruiter_id: 'u_recruiter_1', company: 'NimbusScale Systems', logo: '❄️', title: 'Senior Cloud Solution Architect', desc: 'Design scalable multi-cloud deployments, secure container configurations with Kubernetes, and provision Terraform structures.', location: 'Seattle, WA (Hybrid)', skills: 'AWS, Kubernetes, Terraform, Docker', salary: '$160,000 - $210,000', type: 'Job' }
+      { id: 'j_1', recruiter_id: 'u_recruiter_1', company: 'NeuralCorp Systems', logo: '⚡', title: 'AI Resident Engineer (LLM Tuning)', desc: 'Develop deep learning architectures, leverage PyTorch and HuggingFace Transformers, and implement sovereign AI models.', location: 'San Francisco, CA', skills: 'Python, PyTorch, Transformers, LLMs', salary: '$140,000 - $180,000', type: 'Job', exp: 'Mid Level', emp: 'Full-time', workplace: 'Remote', deadline: '2026-09-01 00:00:00', status: 'Published' },
+      { id: 'j_2', recruiter_id: 'u_recruiter_1', company: 'SaaSify Platforms', logo: '🪐', title: 'React / Frontend Developer Intern', desc: 'Collaborate with design and product teams to implement beautiful responsive interfaces with React, Tailwind CSS, and Vite.', location: 'Austin, TX', skills: 'React, Tailwind CSS, JavaScript, Vite', salary: '$40 - $55 / hour', type: 'Internship', exp: 'Entry Level', emp: 'Full-time', workplace: 'Onsite', deadline: '2026-08-30 00:00:00', status: 'Published' },
+      { id: 'j_3', recruiter_id: 'u_recruiter_1', company: 'NimbusScale Systems', logo: '❄️', title: 'Senior Cloud Solution Architect', desc: 'Design scalable multi-cloud deployments, secure container configurations with Kubernetes, and provision Terraform structures.', location: 'Seattle, WA', skills: 'AWS, Kubernetes, Terraform, Docker', salary: '$160,000 - $210,000', type: 'Job', exp: 'Senior Level', emp: 'Full-time', workplace: 'Hybrid', deadline: '2026-09-15 00:00:00', status: 'Published' }
     ];
 
     for (const j of jobs) {
       await db.run(
-        `INSERT INTO jobs (id, recruiter_id, company_name, company_logo, title, description, location, skills_required, salary_range, job_type)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [j.id, j.recruiter_id, j.company, j.logo, j.title, j.desc, j.location, j.skills, j.salary, j.type]
+        `INSERT INTO jobs (id, recruiter_id, company_name, company_logo, title, description, location, skills_required, salary_range, job_type, experience_level, employment_type, workplace_type, application_deadline, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [j.id, j.recruiter_id, j.company, j.logo, j.title, j.desc, j.location, j.skills, j.salary, j.type, j.exp, j.emp, j.workplace, j.deadline, j.status]
       );
     }
     console.log(' - Jobs seeded');

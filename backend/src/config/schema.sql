@@ -42,6 +42,10 @@ CREATE TABLE IF NOT EXISTS company_profiles (
     about TEXT,
     industry TEXT,
     location TEXT,
+    company_size TEXT DEFAULT '1-10 employees',
+    headquarters TEXT DEFAULT 'San Francisco, CA',
+    linkedin_url TEXT,
+    twitter_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -148,6 +152,11 @@ CREATE TABLE IF NOT EXISTS jobs (
     skills_required TEXT NOT NULL, -- Comma-separated list
     salary_range TEXT, -- e.g., "$80,000 - $100,000" or "$30/hr"
     job_type TEXT NOT NULL CHECK(job_type IN ('Job', 'Internship')),
+    experience_level TEXT DEFAULT 'Entry Level',
+    employment_type TEXT DEFAULT 'Full-time',
+    workplace_type TEXT DEFAULT 'Remote',
+    application_deadline TIMESTAMP,
+    status TEXT DEFAULT 'Published' CHECK(status IN ('Draft', 'Published')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (recruiter_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -158,7 +167,7 @@ CREATE TABLE IF NOT EXISTS applications (
     job_id TEXT NOT NULL,
     student_id TEXT NOT NULL,
     resume_url TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'Applied' CHECK(status IN ('Applied', 'Shortlisted', 'Rejected')),
+    status TEXT NOT NULL DEFAULT 'Applied' CHECK(status IN ('Applied', 'Shortlisted', 'Interviewing', 'Hired', 'Rejected')),
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
