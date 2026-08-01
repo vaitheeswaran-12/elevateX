@@ -98,8 +98,9 @@ export default function HomeView() {
   }
 
   // Calculate completed courses count based on completed_at field
-  const completedCount = enrolledCourses.filter(c => c.completed_at).length;
-  const inProgressCount = enrolledCourses.length - completedCount;
+  const enrollmentsArray = enrolledCourses?.enrollments || [];
+  const completedCount = enrollmentsArray.filter(c => c.completed_at).length;
+  const inProgressCount = enrollmentsArray.length - completedCount;
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -115,12 +116,12 @@ export default function HomeView() {
               Welcome back, {user?.name || 'Developer'}!
             </h1>
             <p className="text-white/80 text-sm max-w-xl">
-              You're currently enrolled in <span className="font-bold">{enrolledCourses.length} paths</span>. Your progress puts you in the top 5% of active learners this week. Keep ascending!
+              You're currently enrolled in <span className="font-bold">{enrollmentsArray.length} paths</span>. Your progress puts you in the top 5% of active learners this week. Keep ascending!
             </p>
           </div>
           <div className="flex gap-4 shrink-0">
             <div className="bg-white/15 backdrop-blur-md px-4 py-3 rounded-2xl text-center">
-              <p className="text-2xl font-black">{enrolledCourses.length}</p>
+              <p className="text-2xl font-black">{enrollmentsArray.length}</p>
               <p className="text-[10px] text-white/70 uppercase font-bold tracking-wider">Enrolled</p>
             </div>
             <div className="bg-white/15 backdrop-blur-md px-4 py-3 rounded-2xl text-center">
@@ -189,9 +190,9 @@ export default function HomeView() {
           </div>
 
           <div className="space-y-4 flex-grow">
-            {enrolledCourses.length > 0 ? (
-              enrolledCourses.slice(0, 2).map((item) => {
-                const totalLessons = 3; // mock modules reference
+            {enrolledCourses && enrolledCourses.enrollments && enrolledCourses.enrollments.length > 0 ? (
+              enrolledCourses.enrollments.slice(0, 2).map((item) => {
+                const totalLessons = item.total_lessons || 3;
                 const completedCount = item.completed_lessons?.length || 0;
                 const progressPercentage = Math.round((completedCount / totalLessons) * 100) || 5;
 

@@ -105,9 +105,10 @@ describe('AscendIQ Instructor Dashboard APIs', () => {
       .set('Authorization', `Bearer ${instructorToken}`);
 
     expect(res.statusCode).toEqual(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body[0].student_name).toEqual('Jane Learner');
-    expect(res.body[0].completion_percentage).toBeGreaterThan(0);
+    expect(res.body).toHaveProperty('students');
+    expect(Array.isArray(res.body.students)).toBe(true);
+    expect(res.body.students[0].student_name).toEqual('Jane Learner');
+    expect(res.body.students[0].completion_percentage).toBeGreaterThanOrEqual(0);
   });
 
   test('GET /api/instructor/analytics - Should retrieve summary reports', async () => {

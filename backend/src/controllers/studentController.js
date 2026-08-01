@@ -100,7 +100,11 @@ export async function updateProfile(req, res, next) {
 export async function getEnrolledCourses(req, res, next) {
   try {
     const studentId = req.user.id;
-    // Query joins enrollments and corresponding courses
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = parseInt(req.query.limit || '10', 10);
+    const offset = (page - 1) * limit;
+
+    // Query joins enrollments and corresponding courses with pagination
     const sql = `
       SELECT e.id as enrollment_id, e.completed_lessons, e.quiz_score, e.completed_at, e.created_at as enrolled_at,
              c.id as course_id, c.title, c.description, c.thumbnail_url, c.category, c.difficulty, c.duration, c.rating,
@@ -109,29 +113,64 @@ export async function getEnrolledCourses(req, res, next) {
       JOIN courses c ON e.course_id = c.id
       JOIN users u ON c.instructor_id = u.id
       WHERE e.student_id = ?
+      ORDER BY e.created_at DESC
+      LIMIT ? OFFSET ?
     `;
-    const enrollments = await db.all(sql, [studentId]);
+    const enrollments = await db.all(sql, [studentId, limit, offset]);
 
-    const formatted = enrollments.map(item => ({
-      enrollment_id: item.enrollment_id,
-      completed_lessons: JSON.parse(item.completed_lessons || '[]'),
-      quiz_score: item.quiz_score,
-      completed_at: item.completed_at,
-      enrolled_at: item.enrolled_at,
-      course: {
-        id: item.course_id,
-        title: item.title,
-        description: item.description,
-        thumbnail_url: item.thumbnail_url,
-        category: item.category,
-        difficulty: item.difficulty,
-        duration: item.duration,
-        rating: item.rating,
-        instructor_name: item.instructor_name
+    // Gather dynamic lesson count per enrolled course
+    const courseIds = [...new Set(enrollments.map(e => e.course_id))];
+    const lessonCountMap = {};
+
+    if (courseIds.length > 0) {
+      const lessonsSql = `
+        SELECT m.course_id, COUNT(l.id) as lesson_count
+        FROM course_modules m
+        LEFT JOIN lessons l ON m.id = l.module_id
+        WHERE m.course_id IN (${courseIds.map(() => '?').join(',')})
+        GROUP BY m.course_id
+      `;
+      const lessonCounts = await db.all(lessonsSql, courseIds);
+      lessonCounts.forEach(lc => {
+        lessonCountMap[lc.course_id] = parseInt(lc.lesson_count || '0', 10);
+      });
+    }
+
+    const formatted = enrollments.map(item => {
+      const totalLessons = lessonCountMap[item.course_id] || 3; // default to 3 fallback if no syllabus defined yet
+      return {
+        enrollment_id: item.enrollment_id,
+        completed_lessons: JSON.parse(item.completed_lessons || '[]'),
+        quiz_score: item.quiz_score,
+        completed_at: item.completed_at,
+        enrolled_at: item.enrolled_at,
+        total_lessons: totalLessons,
+        course: {
+          id: item.course_id,
+          title: item.title,
+          description: item.description,
+          thumbnail_url: item.thumbnail_url,
+          category: item.category,
+          difficulty: item.difficulty,
+          duration: item.duration,
+          rating: item.rating,
+          instructor_name: item.instructor_name
+        }
+      };
+    });
+
+    const countResult = await db.get('SELECT COUNT(*) as count FROM enrollments WHERE student_id = ?', [studentId]);
+    const total = countResult ? parseInt(countResult.count, 10) : 0;
+
+    res.status(200).json({
+      enrollments: formatted,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
-    }));
-
-    res.status(200).json(formatted);
+    });
   } catch (err) {
     next(err);
   }

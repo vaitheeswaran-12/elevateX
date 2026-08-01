@@ -80,7 +80,10 @@ export async function createAssignment(req, res, next) {
 export async function getAssignmentSubmissions(req, res, next) {
   try {
     const instructorId = req.user.id;
-    // Lists submissions for courses owned by this instructor
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = parseInt(req.query.limit || '10', 10);
+    const offset = (page - 1) * limit;
+
     const sql = `
       SELECT s.id as submission_id, s.file_url, s.status, s.grade, s.submitted_at,
              a.title as assignment_title, a.deadline,
@@ -92,10 +95,30 @@ export async function getAssignmentSubmissions(req, res, next) {
       JOIN users u ON s.student_id = u.id
       WHERE c.instructor_id = ?
       ORDER BY s.submitted_at DESC
+      LIMIT ? OFFSET ?
     `;
 
-    const rows = await db.all(sql, [instructorId]);
-    res.status(200).json(rows);
+    const rows = await db.all(sql, [instructorId, limit, offset]);
+
+    const countSql = `
+      SELECT COUNT(*) as count
+      FROM assignment_submissions s
+      JOIN assignments a ON s.assignment_id = a.id
+      JOIN courses c ON a.course_id = c.id
+      WHERE c.instructor_id = ?
+    `;
+    const countResult = await db.get(countSql, [instructorId]);
+    const total = countResult ? parseInt(countResult.count, 10) : 0;
+
+    res.status(200).json({
+      submissions: rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -146,7 +169,10 @@ export async function gradeSubmission(req, res, next) {
 export async function getStudentsList(req, res, next) {
   try {
     const instructorId = req.user.id;
-    // Load student enrollments in courses authored by this instructor
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = parseInt(req.query.limit || '10', 10);
+    const offset = (page - 1) * limit;
+
     const sql = `
       SELECT e.id as enrollment_id, e.completed_lessons, e.quiz_score, e.completed_at,
              u.name as student_name, u.email as student_email,
@@ -156,14 +182,34 @@ export async function getStudentsList(req, res, next) {
       JOIN courses c ON e.course_id = c.id
       WHERE c.instructor_id = ?
       ORDER BY e.created_at DESC
+      LIMIT ? OFFSET ?
     `;
 
-    const rows = await db.all(sql, [instructorId]);
+    const rows = await db.all(sql, [instructorId, limit, offset]);
+
+    // Build unique course IDs to fetch actual dynamic lesson counts
+    const courseIds = [...new Set(rows.map(r => r.course_id))];
+    const lessonCountMap = {};
+
+    if (courseIds.length > 0) {
+      // Fetch dynamic lesson counts per course module hierarchy
+      const lessonsSql = `
+        SELECT m.course_id, COUNT(l.id) as lesson_count
+        FROM course_modules m
+        LEFT JOIN lessons l ON m.id = l.module_id
+        WHERE m.course_id IN (${courseIds.map(() => '?').join(',')})
+        GROUP BY m.course_id
+      `;
+      const lessonCounts = await db.all(lessonsSql, courseIds);
+      lessonCounts.forEach(lc => {
+        lessonCountMap[lc.course_id] = parseInt(lc.lesson_count || '0', 10);
+      });
+    }
 
     const formatted = rows.map(item => {
       const completedList = JSON.parse(item.completed_lessons || '[]');
-      const totalLessons = 3; // mock modules reference
-      const completionPercentage = Math.round((completedList.length / totalLessons) * 100) || 5;
+      const totalLessons = lessonCountMap[item.course_id] || 3; // fallback to 3 if no modules/lessons exist yet
+      const completionPercentage = Math.round((completedList.length / (totalLessons || 1)) * 100) || 0;
 
       return {
         enrollment_id: item.enrollment_id,
@@ -178,7 +224,24 @@ export async function getStudentsList(req, res, next) {
       };
     });
 
-    res.status(200).json(formatted);
+    const countSql = `
+      SELECT COUNT(*) as count
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      WHERE c.instructor_id = ?
+    `;
+    const countResult = await db.get(countSql, [instructorId]);
+    const total = countResult ? parseInt(countResult.count, 10) : 0;
+
+    res.status(200).json({
+      students: formatted,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -234,6 +297,10 @@ export async function getAnalytics(req, res, next) {
 export async function getReviews(req, res, next) {
   try {
     const instructorId = req.user.id;
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = parseInt(req.query.limit || '10', 10);
+    const offset = (page - 1) * limit;
+
     const sql = `
       SELECT r.id as review_id, r.student_name, r.rating, r.comment, r.created_at, r.reply_comment,
              c.title as course_title, c.id as course_id
@@ -241,10 +308,29 @@ export async function getReviews(req, res, next) {
       JOIN courses c ON r.course_id = c.id
       WHERE c.instructor_id = ?
       ORDER BY r.created_at DESC
+      LIMIT ? OFFSET ?
     `;
 
-    const rows = await db.all(sql, [instructorId]);
-    res.status(200).json(rows);
+    const rows = await db.all(sql, [instructorId, limit, offset]);
+
+    const countSql = `
+      SELECT COUNT(*) as count
+      FROM reviews r
+      JOIN courses c ON r.course_id = c.id
+      WHERE c.instructor_id = ?
+    `;
+    const countResult = await db.get(countSql, [instructorId]);
+    const total = countResult ? parseInt(countResult.count, 10) : 0;
+
+    res.status(200).json({
+      reviews: rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     next(err);
   }

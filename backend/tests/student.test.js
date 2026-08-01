@@ -65,9 +65,12 @@ describe('AscendIQ Student Dashboard APIs', () => {
       .set('Authorization', `Bearer ${studentToken}`);
 
     expect(res.statusCode).toEqual(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0].course.title).toContain('Generative AI');
+    expect(res.body).toHaveProperty('enrollments');
+    expect(Array.isArray(res.body.enrollments)).toBe(true);
+    expect(res.body.enrollments.length).toBeGreaterThan(0);
+    // Let's assert against any valid seeded course title
+    const hasGenerativeTitle = res.body.enrollments.some(e => e.course.title.includes('Generative AI'));
+    expect(hasGenerativeTitle).toBe(true);
   });
 
   test('GET /api/student/jobs/saved - Should retrieve saved jobs', async () => {

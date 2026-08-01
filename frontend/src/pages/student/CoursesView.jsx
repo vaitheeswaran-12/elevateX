@@ -28,7 +28,7 @@ export default function CoursesView() {
         });
         if (res.ok) {
           const data = await res.json();
-          setCourses(data);
+          setCourses(data?.enrollments || []);
         }
       } catch (err) {
         console.error(err);
@@ -71,7 +71,7 @@ export default function CoursesView() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {courses.map((item) => {
             const completedCount = item.completed_lessons?.length || 0;
-            const totalLessons = 3; // mock modules reference
+            const totalLessons = item.total_lessons || 3;
             const progress = Math.round((completedCount / totalLessons) * 100) || 5;
 
             return (

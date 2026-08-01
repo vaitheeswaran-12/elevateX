@@ -200,3 +200,18 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- ==========================================
+-- 16. Database Indexes for Foreign Keys (Production performance)
+-- ==========================================
+CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON courses(instructor_id);
+CREATE INDEX IF NOT EXISTS idx_course_modules_course_id ON course_modules(course_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_module_id ON lessons(module_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_course_id ON quizzes(course_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_questions_quiz_id ON quiz_questions(quiz_id);
+CREATE INDEX IF NOT EXISTS idx_certificates_student_id ON certificates(student_id);
+CREATE INDEX IF NOT EXISTS idx_certificates_course_id ON certificates(course_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_recruiter_id ON jobs(recruiter_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_course_id ON reviews(course_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_student_id ON reviews(student_id);
