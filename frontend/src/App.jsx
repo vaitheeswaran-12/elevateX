@@ -12,15 +12,17 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import EmailVerificationPage from './pages/EmailVerificationPage.jsx';
 
-// Simple dashboard mock pages for role-based testing
-function StudentDashboard() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Student Workspace</h1>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">Successfully loaded student dashboard context!</p>
-    </div>
-  );
-}
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import StudentDashboardLayout from './components/StudentDashboardLayout.jsx';
+
+// Student Subviews
+import HomeView from './pages/student/HomeView.jsx';
+import ProfileView from './pages/student/ProfileView.jsx';
+import CoursesView from './pages/student/CoursesView.jsx';
+import JobsView from './pages/student/JobsView.jsx';
+import CertificatesView from './pages/student/CertificatesView.jsx';
+import NotificationsView from './pages/student/NotificationsView.jsx';
+import SettingsView from './pages/student/SettingsView.jsx';
 function InstructorDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -64,8 +66,58 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
 
-                {/* Temporary Dashboard Placeholders */}
-                <Route path="/student-dashboard" element={<StudentDashboard />} />
+                {/* Student Dashboard Sub-Routes with Route Protections */}
+                <Route path="/student-dashboard" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <HomeView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/profile" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <ProfileView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/courses" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <CoursesView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/jobs" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <JobsView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/certificates" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <CertificatesView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/notifications" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <NotificationsView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/settings" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <SettingsView />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+
+                {/* Other dashboards */}
                 <Route path="/instructor-dashboard" element={<InstructorDashboard />} />
                 <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />

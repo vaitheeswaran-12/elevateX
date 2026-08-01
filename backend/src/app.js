@@ -15,8 +15,10 @@ app.use((req, res, next) => {
 });
 
 import authRoutes from './routes/authRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
 
 app.use('/api/auth', authRoutes);
+app.use('/api/student', studentRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({
