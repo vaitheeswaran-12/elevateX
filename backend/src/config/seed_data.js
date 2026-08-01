@@ -3,9 +3,24 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
 async function seed() {
-  console.log('Seeding Node/SQLite database with high-fidelity records...');
+  console.log('Seeding PostgreSQL database with high-fidelity records...');
   try {
     const pwHash = await bcrypt.hash('securepassword', 10);
+
+    // Clear old tables to allow deterministic re-runs without Conflict errors
+    await db.run('DELETE FROM reviews');
+    await db.run('DELETE FROM notifications');
+    await db.run('DELETE FROM saved_jobs');
+    await db.run('DELETE FROM applications');
+    await db.run('DELETE FROM jobs');
+    await db.run('DELETE FROM certificates');
+    await db.run('DELETE FROM enrollments');
+    await db.run('DELETE FROM lessons');
+    await db.run('DELETE FROM course_modules');
+    await db.run('DELETE FROM courses');
+    await db.run('DELETE FROM profiles');
+    await db.run('DELETE FROM company_profiles');
+    await db.run('DELETE FROM users');
 
     // 1. Seed Users
     const users = [
@@ -17,7 +32,7 @@ async function seed() {
 
     for (const u of users) {
       await db.run(
-        'INSERT OR REPLACE INTO users (id, name, email, password_hash, role, is_verified) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO users (id, name, email, password_hash, role, is_verified) VALUES (?, ?, ?, ?, ?, ?)',
         [u.id, u.name, u.email, u.password_hash, u.role, u.is_verified]
       );
     }
@@ -30,7 +45,7 @@ async function seed() {
     const projects = JSON.stringify([{ title: "NeuralScribe: Transformer-based Text Engine", desc: "Trained an 85M parameter model from scratch on Shakespeare datasets.", link: "https://github.com/student/neural-scribe" }]);
 
     await db.run(
-      `INSERT OR REPLACE INTO profiles (id, user_id, about, skills, education, experience, projects, resume_url, github_url, linkedin_url)
+      `INSERT INTO profiles (id, user_id, about, skills, education, experience, projects, resume_url, github_url, linkedin_url)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         'p_student_1',
@@ -56,7 +71,7 @@ async function seed() {
 
     for (const c of courses) {
       await db.run(
-        `INSERT OR REPLACE INTO courses (id, title, description, thumbnail_url, instructor_id, category, difficulty, duration, rating, reviews_count)
+        `INSERT INTO courses (id, title, description, thumbnail_url, instructor_id, category, difficulty, duration, rating, reviews_count)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [c.id, c.title, c.desc, c.thumbnail, 'u_instructor_1', c.category, c.difficulty, c.duration, c.rating, c.count]
       );
@@ -72,7 +87,7 @@ async function seed() {
 
     for (const m of modules) {
       await db.run(
-        'INSERT OR REPLACE INTO course_modules (id, course_id, title, sort_order) VALUES (?, ?, ?, ?)',
+        'INSERT INTO course_modules (id, course_id, title, sort_order) VALUES (?, ?, ?, ?)',
         [m.id, m.course_id, m.title, m.sort]
       );
     }
@@ -87,7 +102,7 @@ async function seed() {
 
     for (const l of lessons) {
       await db.run(
-        'INSERT OR REPLACE INTO lessons (id, module_id, title, duration, sort_order) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO lessons (id, module_id, title, duration, sort_order) VALUES (?, ?, ?, ?, ?)',
         [l.id, l.module_id, l.title, l.duration, l.sort]
       );
     }
@@ -95,18 +110,18 @@ async function seed() {
 
     // 6. Seed Enrollments
     await db.run(
-      'INSERT OR REPLACE INTO enrollments (id, student_id, course_id, completed_lessons, quiz_score, completed_at) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO enrollments (id, student_id, course_id, completed_lessons, quiz_score, completed_at) VALUES (?, ?, ?, ?, ?, ?)',
       ['e_1', 'u_student_1', 'c_1', JSON.stringify(['l_1']), 85, '2026-07-28 10:00:00']
     );
     await db.run(
-      'INSERT OR REPLACE INTO enrollments (id, student_id, course_id, completed_lessons, quiz_score, completed_at) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO enrollments (id, student_id, course_id, completed_lessons, quiz_score, completed_at) VALUES (?, ?, ?, ?, ?, ?)',
       ['e_2', 'u_student_1', 'c_2', JSON.stringify([]), null, null]
     );
     console.log(' - Enrollments seeded');
 
     // 7. Seed Certificates
     await db.run(
-      `INSERT OR REPLACE INTO certificates (id, student_name, course_name, instructor_name, student_id, course_id, completion_date, certificate_id, qr_code_data)
+      `INSERT INTO certificates (id, student_name, course_name, instructor_name, student_id, course_id, completion_date, certificate_id, qr_code_data)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ['cert_1', 'Jane Learner', 'Generative AI & LLM Architecture', 'Dr. Sarah Jenkins', 'u_student_1', 'c_1', '2026-07-28 10:00:00', 'AI-CERT-98234-2026', 'https://ascendiq.com/verify/AI-CERT-98234-2026']
     );
@@ -121,7 +136,7 @@ async function seed() {
 
     for (const j of jobs) {
       await db.run(
-        `INSERT OR REPLACE INTO jobs (id, recruiter_id, company_name, company_logo, title, description, location, skills_required, salary_range, job_type)
+        `INSERT INTO jobs (id, recruiter_id, company_name, company_logo, title, description, location, skills_required, salary_range, job_type)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [j.id, j.recruiter_id, j.company, j.logo, j.title, j.desc, j.location, j.skills, j.salary, j.type]
       );
@@ -129,8 +144,8 @@ async function seed() {
     console.log(' - Jobs seeded');
 
     // 9. Seed Saved Jobs & Applications
-    await db.run('INSERT OR REPLACE INTO saved_jobs (id, student_id, job_id) VALUES (?, ?, ?)', ['sj_1', 'u_student_1', 'j_3']);
-    await db.run('INSERT OR REPLACE INTO applications (id, job_id, student_id, resume_url, status) VALUES (?, ?, ?, ?, ?)', ['app_1', 'j_1', 'u_student_1', 'https://example.com/jane-resume.pdf', 'Applied']);
+    await db.run('INSERT INTO saved_jobs (id, student_id, job_id) VALUES (?, ?, ?)', ['sj_1', 'u_student_1', 'j_3']);
+    await db.run('INSERT INTO applications (id, job_id, student_id, resume_url, status) VALUES (?, ?, ?, ?, ?)', ['app_1', 'j_1', 'u_student_1', 'https://example.com/jane-resume.pdf', 'Applied']);
     console.log(' - Saved Jobs & Applications seeded');
 
     // 10. Seed Notifications
@@ -142,7 +157,7 @@ async function seed() {
 
     for (const n of notifications) {
       await db.run(
-        'INSERT OR REPLACE INTO notifications (id, user_id, title, message, type, is_read) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO notifications (id, user_id, title, message, type, is_read) VALUES (?, ?, ?, ?, ?, ?)',
         [n.id, 'u_student_1', n.title, n.msg, n.type, n.read]
       );
     }
@@ -154,5 +169,9 @@ async function seed() {
   }
 }
 
-seed();
+// Support direct node script executions
+if (process.argv[1].endsWith('seed_data.js')) {
+  seed().then(() => db.close());
+}
+
 export default seed;

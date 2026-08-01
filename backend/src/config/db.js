@@ -1,50 +1,63 @@
-import sqlite3 from 'sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import pg from 'pg';
+import dotenv from 'dotenv';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+dotenv.config();
 
-const dbPath = path.resolve(__dirname, '../../../ascendiq.db');
+const { Pool } = pg;
+
+// Use standard connection string from env
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/ascendiq';
+
+const pool = new Pool({
+  connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 class DBProvider {
   constructor() {
-    this.db = new sqlite3.Database(dbPath, (err) => {
+    pool.connect((err, client, release) => {
       if (err) {
-        console.error('SQLite Database Connection Error:', err.message);
+        console.error('PostgreSQL Connection Error:', err.message);
       } else {
-        console.log('Connected to the SQLite/Supabase portable database successfully.');
+        console.log('Connected to the PostgreSQL/Supabase database successfully.');
+        release();
       }
     });
   }
 
-  all(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+  // Convert SQLite style ? placeholders to PostgreSQL $1, $2, ...
+  convertSql(sql) {
+    let index = 1;
+    return sql.replace(/\?/g, () => `$${index++}`);
   }
 
-  get(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+  async all(sql, params = []) {
+    const pgSql = this.convertSql(sql);
+    const result = await pool.query(pgSql, params);
+    return result.rows;
   }
 
-  run(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function (err) {
-        if (err) reject(err);
-        else resolve({ id: this.lastID, changes: this.changes });
-      });
-    });
+  async get(sql, params = []) {
+    const pgSql = this.convertSql(sql);
+    const result = await pool.query(pgSql, params);
+    return result.rows[0] || null;
+  }
+
+  async run(sql, params = []) {
+    const pgSql = this.convertSql(sql);
+    const result = await pool.query(pgSql, params);
+    // Mimic sqlite3's .run return structure
+    return {
+      id: result.insertId || (result.rows && result.rows[0]?.id) || null,
+      changes: result.rowCount
+    };
+  }
+
+  async close() {
+    await pool.end();
   }
 }
 
 const db = new DBProvider();
 export default db;
+export { pool };
