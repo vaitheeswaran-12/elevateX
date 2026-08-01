@@ -23,14 +23,18 @@ import JobsView from './pages/student/JobsView.jsx';
 import CertificatesView from './pages/student/CertificatesView.jsx';
 import NotificationsView from './pages/student/NotificationsView.jsx';
 import SettingsView from './pages/student/SettingsView.jsx';
-function InstructorDashboard() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Instructor Studio</h1>
-      <p className="mt-2 text-gray-600 dark:text-gray-400">Successfully loaded instructor workspace!</p>
-    </div>
-  );
-}
+
+import InstructorDashboardLayout from './components/InstructorDashboardLayout.jsx';
+
+// Instructor Subviews
+import InstructorHomeView from './pages/instructor/HomeView.jsx';
+import InstructorProfileView from './pages/instructor/ProfileView.jsx';
+import InstructorCoursesView from './pages/instructor/CoursesView.jsx';
+import InstructorCourseBuilderView from './pages/instructor/CourseBuilderView.jsx';
+import InstructorQuizBuilderView from './pages/instructor/QuizBuilderView.jsx';
+import InstructorAssignmentsView from './pages/instructor/AssignmentsView.jsx';
+import InstructorStudentsListView from './pages/instructor/StudentsListView.jsx';
+import InstructorReviewsView from './pages/instructor/ReviewsView.jsx';
 function RecruiterDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -118,7 +122,63 @@ function App() {
                 } />
 
                 {/* Other dashboards */}
-                <Route path="/instructor-dashboard" element={<InstructorDashboard />} />
+                {/* Instructor Dashboard Sub-Routes with Route Protections */}
+                <Route path="/instructor-dashboard" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorHomeView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/profile" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorProfileView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/courses" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorCoursesView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/course-builder/:courseId" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorCourseBuilderView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/quizzes" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorQuizBuilderView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/assignments" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorAssignmentsView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/students" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorStudentsListView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/instructor-dashboard/reviews" element={
+                  <ProtectedRoute allowedRoles={['instructor']}>
+                    <InstructorDashboardLayout>
+                      <InstructorReviewsView />
+                    </InstructorDashboardLayout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
