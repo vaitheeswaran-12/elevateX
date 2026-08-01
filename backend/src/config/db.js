@@ -5,27 +5,41 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Use standard connection string from env
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/ascendiq';
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error(
+    'CRITICAL DATABASE ERROR: process.env.DATABASE_URL is not defined! ' +
+    'Please configure a valid PostgreSQL connection string inside your env environment files.'
+  );
+}
 
 const pool = new Pool({
   connectionString,
+  max: parseInt(process.env.DB_POOL_MAX || '20', 10),
+  idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000', 10),
+  connectionTimeoutMillis: parseInt(process.env.DB_POOL_CONN_TIMEOUT || '2000', 10),
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+// Centralized Pool Connection Error Listening
+pool.on('error', (err, client) => {
+  console.error('CRITICAL: Unexpected client error in active PostgreSQL pool connection:', err.message);
 });
 
 class DBProvider {
   constructor() {
     pool.connect((err, client, release) => {
       if (err) {
-        console.error('PostgreSQL Connection Error:', err.message);
+        console.error('PostgreSQL Connection Hook Failure:', err.message);
       } else {
-        console.log('Connected to the PostgreSQL/Supabase database successfully.');
+        console.log('PostgreSQL Connection Hook Established Successfully.');
         release();
       }
     });
   }
 
-  // Convert SQLite style ? placeholders to PostgreSQL $1, $2, ...
+  // Converts standard ? parameter markers to PostgreSQL numeric markers ($1, $2, ...)
   convertSql(sql) {
     let index = 1;
     return sql.replace(/\?/g, () => `$${index++}`);
@@ -44,11 +58,18 @@ class DBProvider {
   }
 
   async run(sql, params = []) {
-    const pgSql = this.convertSql(sql);
+    let pgSql = this.convertSql(sql);
+
+    // Support RETURNING id dynamically on SQL INSERT statements to read inserted IDs safely and natively
+    const trimmed = pgSql.trim().toUpperCase();
+    if (trimmed.startsWith('INSERT') && !trimmed.includes('RETURNING')) {
+      pgSql += ' RETURNING id';
+    }
+
     const result = await pool.query(pgSql, params);
-    // Mimic sqlite3's .run return structure
+
     return {
-      id: result.insertId || (result.rows && result.rows[0]?.id) || null,
+      id: (result.rows && result.rows[0]?.id) || null,
       changes: result.rowCount
     };
   }
