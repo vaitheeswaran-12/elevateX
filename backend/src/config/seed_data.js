@@ -95,20 +95,82 @@ async function seed() {
     }
     console.log(' - Course Modules seeded');
 
-    // 5. Seed Lessons
+    // 5. Seed Lessons with notes and resources
     const lessons = [
-      { id: 'l_1', module_id: 'm_1', title: 'The Self-Attention Mechanism Exploded', duration: '15:30', sort: 1 },
-      { id: 'l_2', module_id: 'm_1', title: 'Positional Encodings & Tokens', duration: '12:15', sort: 2 },
-      { id: 'l_3', module_id: 'm_2', title: 'LoRA Parameter Optimization', duration: '22:45', sort: 1 }
+      {
+        id: 'l_1',
+        module_id: 'm_1',
+        title: 'The Self-Attention Mechanism Exploded',
+        duration: '15:30',
+        sort: 1,
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        resources: JSON.stringify([{ title: 'Transformer Paper PDF', url: 'https://arxiv.org/pdf/1706.03762' }]),
+        notes: '# Self-Attention Mechanism\n\nAttention is all you need! In this lesson, we break down Q, K, and V vectors.'
+      },
+      {
+        id: 'l_2',
+        module_id: 'm_1',
+        title: 'Positional Encodings & Tokens',
+        duration: '12:15',
+        sort: 2,
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        resources: JSON.stringify([{ title: 'Positional Encoding Viz', url: 'https://example.com/pos-encoding' }]),
+        notes: '# Positional Encoding\n\nHow do transformers understand sequence order? By adding wave frequencies to embeddings!'
+      },
+      {
+        id: 'l_3',
+        module_id: 'm_2',
+        title: 'LoRA Parameter Optimization',
+        duration: '22:45',
+        sort: 1,
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        resources: JSON.stringify([{ title: 'LoRA Research PDF', url: 'https://arxiv.org/pdf/2106.09685' }]),
+        notes: '# Low-Rank Adaptation (LoRA)\n\nLearn to fine-tune billions of parameters by updating only a small adapter matrix.'
+      }
     ];
 
     for (const l of lessons) {
       await db.run(
-        'INSERT INTO lessons (id, module_id, title, duration, sort_order) VALUES (?, ?, ?, ?, ?)',
-        [l.id, l.module_id, l.title, l.duration, l.sort]
+        `INSERT INTO lessons (id, module_id, title, duration, sort_order, video_url, resources, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [l.id, l.module_id, l.title, l.duration, l.sort, l.video_url, l.resources, l.notes]
       );
     }
     console.log(' - Lessons seeded');
+
+    // 5b. Seed Quizzes, Quiz Questions, and Assignments
+    await db.run('DELETE FROM quiz_questions');
+    await db.run('DELETE FROM quiz_attempts');
+    await db.run('DELETE FROM quizzes');
+    await db.run('DELETE FROM assignment_submissions');
+    await db.run('DELETE FROM assignments');
+
+    // Seed Quiz
+    await db.run(
+      'INSERT INTO quizzes (id, course_id, title, timer_minutes, passing_percentage, randomize_questions) VALUES (?, ?, ?, ?, ?, ?)',
+      ['q_1', 'c_1', 'Attention Block Assessment', 10, 70, 0]
+    );
+
+    const questions = [
+      { id: 'qq_1', quiz_id: 'q_1', text: 'What does RAG stand for in Generative AI?', opts: ['Role-Assigned Generation', 'Retrieval-Augmented Generation', 'Randomized Attention Gate', 'Recurrent Auxiliary Gradient'], correct: 1 },
+      { id: 'qq_2', quiz_id: 'q_1', text: 'Which parameter-efficient fine-tuning technique leverages low-rank adapter updates?', opts: ['LoRA', 'SGD', 'AdamW', 'MinMax Scaler'], correct: 0 },
+      { id: 'qq_3', quiz_id: 'q_1', text: 'Which mathematical function scales attention logits into standard probabilities?', opts: ['ReLU', 'Sigmoid', 'Softmax', 'Tanh'], correct: 2 }
+    ];
+
+    for (const q of questions) {
+      await db.run(
+        'INSERT INTO quiz_questions (id, quiz_id, question_text, options, correct_option_index) VALUES (?, ?, ?, ?, ?)',
+        [q.id, q.quiz_id, q.text, JSON.stringify(q.opts), q.correct]
+      );
+    }
+    console.log(' - Quizzes & Questions seeded');
+
+    // Seed Assignment
+    await db.run(
+      'INSERT INTO assignments (id, course_id, title, description, deadline) VALUES (?, ?, ?, ?, ?)',
+      ['asg_1', 'c_1', 'Transformer Decoder Coding Assignment', 'Implement a scaled dot-product attention block from scratch in PyTorch.', '2026-12-31 23:59:59']
+    );
+    console.log(' - Assignments seeded');
 
     // 6. Seed Enrollments
     await db.run(

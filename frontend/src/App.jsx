@@ -55,6 +55,11 @@ import AdminAnalyticsView from './pages/admin/AnalyticsView.jsx';
 import AdminAuditLogsView from './pages/admin/AuditLogsView.jsx';
 import AdminSettingsView from './pages/admin/SettingsView.jsx';
 
+// Course Learning Engine Pages
+import CoursePlayerPage from './pages/student/CoursePlayerPage.jsx';
+import QuizPage from './pages/student/QuizPage.jsx';
+import CertificateVerificationPage from './pages/student/CertificateVerificationPage.jsx';
+
 function App() {
   return (
     <ThemeProvider>
@@ -81,6 +86,23 @@ function App() {
                     </StudentDashboardLayout>
                   </ProtectedRoute>
                 } />
+                <Route path="/student-dashboard/course-player/:courseId" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <CoursePlayerPage />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/student-dashboard/quiz/:quizId" element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <StudentDashboardLayout>
+                      <QuizPage />
+                    </StudentDashboardLayout>
+                  </ProtectedRoute>
+                } />
+
+                {/* Public non-authenticated Verifiable Certificates Cryptographic Ledger route */}
+                <Route path="/verify/:id" element={<CertificateVerificationPage />} />
                 <Route path="/student-dashboard/profile" element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <StudentDashboardLayout>
