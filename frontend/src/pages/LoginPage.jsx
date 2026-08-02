@@ -135,7 +135,7 @@ export default function LoginPage() {
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
               <>
-                <span>Sign In to AscendIQ</span>
+                <span>Sign In to ElevateX</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

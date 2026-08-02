@@ -14,11 +14,11 @@ export default function Footer() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <span className="text-xl font-bold text-white bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                AscendIQ
+                ElevateX
               </span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
-              AscendIQ is the premier unified EdTech + Career ecosystem. Learn high-demand competencies, earn cryptographic credentials, and secure elite corporate placements effortlessly.
+              ElevateX is the premier unified EdTech + Career ecosystem. Learn high-demand competencies, earn cryptographic credentials, and secure elite corporate placements effortlessly.
             </p>
             <div className="flex space-x-4 pt-2">
               <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">
@@ -80,18 +80,18 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-2.5">
               <Mail className="w-5 h-5 text-primary shrink-0" />
-              <span>support@ascendiq.com</span>
+              <span>support@elevatex.com</span>
             </div>
             <div className="flex items-center space-x-2.5">
               <Phone className="w-5 h-5 text-primary shrink-0" />
-              <span>+1 (800) ASCEND-IQ</span>
+              <span>+1 (800) ELEVATE-X</span>
             </div>
           </div>
         </div>
 
         {/* Footnote bar */}
         <div className="pt-8 border-t border-gray-800 text-center md:flex md:justify-between md:items-center text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} AscendIQ Corporation. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} ElevateX Corporation. All rights reserved.</p>
           <div className="flex justify-center space-x-6 mt-4 md:mt-0">
             <a href="#privacy" className="hover:text-gray-300 transition-colors">Privacy Charter</a>
             <a href="#terms" className="hover:text-gray-300 transition-colors">Terms of Engagement</a>

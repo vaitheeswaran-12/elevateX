@@ -51,7 +51,7 @@ export default function AdminDashboardLayout({ children }) {
             <Sparkles className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">AscendIQ</span>
+            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">ElevateX</span>
             <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest mt-0.5">Admin Control Panel</p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function AdminDashboardLayout({ children }) {
             <div className="w-8 h-8 bg-indigo-600/10 rounded-lg flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-indigo-600" />
             </div>
-            <span className="text-base font-black tracking-tight text-gray-900 dark:text-white">AscendIQ Admin</span>
+            <span className="text-base font-black tracking-tight text-gray-900 dark:text-white">ElevateX Admin</span>
           </div>
 
           <div className="flex items-center space-x-3">

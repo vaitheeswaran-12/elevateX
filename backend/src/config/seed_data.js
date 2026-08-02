@@ -187,7 +187,7 @@ async function seed() {
     await db.run(
       `INSERT INTO certificates (id, student_name, course_name, instructor_name, student_id, course_id, completion_date, certificate_id, qr_code_data)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      ['cert_1', 'Jane Learner', 'Generative AI & LLM Architecture', 'Dr. Sarah Jenkins', 'u_student_1', 'c_1', '2026-07-28 10:00:00', 'AI-CERT-98234-2026', 'https://ascendiq.com/verify/AI-CERT-98234-2026']
+      ['cert_1', 'Jane Learner', 'Generative AI & LLM Architecture', 'Dr. Sarah Jenkins', 'u_student_1', 'c_1', '2026-07-28 10:00:00', 'AI-CERT-98234-2026', 'https://elevatex.com/verify-certificate/cert_1']
     );
     console.log(' - Certificates seeded');
 
@@ -266,12 +266,12 @@ async function seed() {
 
     // 12. Seed System Settings
     const settings = [
-      { key: 'platform_name', value: 'AscendIQ' },
-      { key: 'support_email', value: 'support@ascendiq.com' },
+      { key: 'platform_name', value: 'ElevateX' },
+      { key: 'support_email', value: 'support@elevatex.com' },
       { key: 'maintenance_mode', value: 'false' },
       { key: 'commission_rate', value: '15' },
-      { key: 'email_template_verification', value: 'Hello {{name}}, please verify your AscendIQ email using code {{code}}.' },
-      { key: 'email_template_welcome', value: 'Welcome to AscendIQ, {{name}}! Learn, build and get hired with us.' },
+      { key: 'email_template_verification', value: 'Hello {{name}}, please verify your ElevateX email using code {{code}}.' },
+      { key: 'email_template_welcome', value: 'Welcome to ElevateX, {{name}}! Learn, build and get hired with us.' },
       { key: 'email_template_reset', value: 'Hi {{name}}, reset your password using the link: {{link}}.' }
     ];
 

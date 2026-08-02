@@ -64,7 +64,7 @@ export default function EmailVerificationPage() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Account Verified!</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {message}. Thank you for verifying your AscendIQ account. Your digital workspace is now ready!
+              {message}. Thank you for verifying your ElevateX account. Your digital workspace is now ready!
             </p>
             <div className="pt-3">
               <Link

@@ -721,7 +721,7 @@ export default function JobsCatalogPage() {
                       <li>Collaborate directly with cross-functional leadership on critical project deliverables.</li>
                       <li>Write robust, modular, and optimized production components aligned with clean code architecture.</li>
                       <li>Integrate continuous delivery operations, security compliance checks, and regression audits.</li>
-                      <li>Leverage matching credentials from the AscendIQ ecosystem to boost engineering efficiency.</li>
+                      <li>Leverage matching credentials from the ElevateX ecosystem to boost engineering efficiency.</li>
                     </ul>
                   </div>
 

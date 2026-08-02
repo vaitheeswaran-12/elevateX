@@ -37,7 +37,7 @@ export default function Navbar() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                AscendIQ
+                ElevateX
               </span>
             </Link>
 

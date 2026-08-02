@@ -132,13 +132,13 @@ export default function CertificatesView() {
             {/* Visual credential */}
             <div className="p-8 text-center space-y-6">
 
-              {/* AscendIQ Stamp icon */}
+              {/* ElevateX Stamp icon */}
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto">
                 <Award className="w-8 h-8" />
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-xs text-gray-400 font-bold uppercase tracking-wider">AscendIQ Verification Certificate</h4>
+                <h4 className="text-xs text-gray-400 font-bold uppercase tracking-wider">ElevateX Verification Certificate</h4>
                 <p className="text-xs text-gray-500 font-medium">This document certifies that</p>
                 <h3 className="text-lg font-black text-gray-900 dark:text-white leading-tight">{activeVerify.student_name}</h3>
               </div>

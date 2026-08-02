@@ -48,7 +48,7 @@ export default function RecruiterDashboardLayout({ children }) {
             <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AscendIQ</span>
+            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">ElevateX</span>
             <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest mt-0.5">Recruiter Studio</p>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function RecruiterDashboardLayout({ children }) {
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-primary" />
             </div>
-            <span className="text-base font-black tracking-tight text-gray-900 dark:text-white">AscendIQ ATS</span>
+            <span className="text-base font-black tracking-tight text-gray-900 dark:text-white">ElevateX ATS</span>
           </div>
 
           <div className="flex items-center space-x-3">

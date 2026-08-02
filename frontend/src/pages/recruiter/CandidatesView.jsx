@@ -381,7 +381,7 @@ export default function CandidatesView() {
                       <div className="absolute -left-6 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-[#111827]"></div>
                       <div>
                         <p className="text-xs font-extrabold text-gray-900 dark:text-white">Applied successfully</p>
-                        <p className="text-[10px] text-gray-400 font-bold">Resumes scanned & registered natively inside AscendIQ ATS</p>
+                        <p className="text-[10px] text-gray-400 font-bold">Resumes scanned & registered natively inside ElevateX ATS</p>
                       </div>
                     </div>
 

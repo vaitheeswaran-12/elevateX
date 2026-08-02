@@ -115,7 +115,7 @@ export default function JobsView() {
   };
 
   const handleDeleteJob = (jobId) => {
-    if (!window.confirm('Delete this job listing from AscendIQ? All active student applications will be discarded.')) return;
+    if (!window.confirm('Delete this job listing from ElevateX? All active student applications will be discarded.')) return;
 
     fetch(`/api/admin/jobs/${jobId}`, {
       method: 'DELETE',

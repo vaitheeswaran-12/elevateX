@@ -146,7 +146,7 @@ const MOCK_JOBS = [
 const MOCK_TESTIMONIALS = [
   {
     id: 't1',
-    quote: "AscendIQ completely restructured my career trajectory. I took the Generative AI Masterclass, earned my verified blockchain certificate, and was headhunted by a top recruiter directly on the platform within 3 weeks!",
+    quote: "ElevateX completely restructured my career trajectory. I took the Generative AI Masterclass, earned my verified blockchain certificate, and was headhunted by a top recruiter directly on the platform within 3 weeks!",
     name: "Elena Rostova",
     role: "AI Developer at Tesla",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
@@ -173,7 +173,7 @@ const MOCK_TESTIMONIALS = [
 const FAQ_ITEMS = [
   {
     q: "How does the cryptographic certificate verification work?",
-    a: "Every certificate issued on AscendIQ is generated with an immutable Certificate ID and corresponding QR code. This links back to our public verification endpoints, allowing recruiters to instantly verify the credential's authenticity in seconds."
+    a: "Every certificate issued on ElevateX is generated with an immutable Certificate ID and corresponding QR code. This links back to our public verification endpoints, allowing recruiters to instantly verify the credential's authenticity in seconds."
   },
   {
     q: "Can I apply for internships directly from the platform?",
@@ -268,7 +268,7 @@ export default function LandingPage() {
 
           {/* Subheading text */}
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed mb-10">
-            AscendIQ unites premium professional training, auto-evaluated technical assignments, verified cryptographic credentials, and matching job pipelines under a singular modern portal.
+            ElevateX unites premium professional training, auto-evaluated technical assignments, verified cryptographic credentials, and matching job pipelines under a singular modern portal.
           </p>
 
           {/* Call To Actions */}
@@ -402,7 +402,7 @@ export default function LandingPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
           <div>
             <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Popular Courses on AscendIQ
+              Popular Courses on ElevateX
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
               Learn skills, pass auto-evaluated quizzes, and earn verifiable credentials.
@@ -592,7 +592,7 @@ export default function LandingPage() {
 
                 {/* Apply Actions */}
                 <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex justify-between items-center">
-                  <span className="text-[10px] font-semibold text-gray-400">Apply with AscendIQ Credential</span>
+                  <span className="text-[10px] font-semibold text-gray-400">Apply with ElevateX Credential</span>
                   <Link
                     to="/register"
                     className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-xl shadow-premium transition-all"
@@ -736,7 +736,7 @@ export default function LandingPage() {
             Frequently Asked Questions
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Have questions about the unified AscendIQ system? Let's clarify.
+            Have questions about the unified ElevateX system? Let's clarify.
           </p>
         </div>
 

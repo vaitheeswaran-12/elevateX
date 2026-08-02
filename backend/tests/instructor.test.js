@@ -3,7 +3,7 @@ import app from '../src/app.js';
 import db from '../src/config/db.js';
 import seed from '../src/config/seed_data.js';
 
-describe('AscendIQ Instructor Dashboard APIs', () => {
+describe('ElevateX Instructor Dashboard APIs', () => {
   let instructorToken = '';
 
   beforeAll(async () => {

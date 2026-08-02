@@ -142,7 +142,7 @@ export default function RegisterPage() {
             {/* User Role Selection - Premium Card Grid */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2.5">
-                Choose your role on AscendIQ
+                Choose your role on ElevateX
               </label>
               <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
                 {/* Student */}

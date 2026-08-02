@@ -83,7 +83,7 @@ export default function CertificateVerificationPage() {
             <Award className="w-12 h-12" />
           </div>
           <div>
-            <span className="text-[10px] text-indigo-600 font-black uppercase tracking-widest">AscendIQ Verification Authority</span>
+            <span className="text-[10px] text-indigo-600 font-black uppercase tracking-widest">ElevateX Verification Authority</span>
             <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mt-1.5 font-serif">Certificate of Accomplishment</h2>
           </div>
         </div>

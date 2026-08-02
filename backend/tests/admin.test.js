@@ -3,7 +3,7 @@ import app from '../src/app.js';
 import db from '../src/config/db.js';
 import seed from '../src/config/seed_data.js';
 
-describe('AscendIQ Admin Control Panel Endpoints', () => {
+describe('ElevateX Admin Control Panel Endpoints', () => {
   let adminToken = '';
   let studentToken = '';
   let targetUserId = 'u_student_1';
@@ -257,7 +257,7 @@ describe('AscendIQ Admin Control Panel Endpoints', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('settings');
-      expect(res.body.settings.platform_name).toBe('AscendIQ');
+      expect(res.body.settings.platform_name).toBe('ElevateX');
     });
 
     it('Should apply batch settings and template updates successfully', async () => {
@@ -265,14 +265,14 @@ describe('AscendIQ Admin Control Panel Endpoints', () => {
         .put('/api/admin/settings')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          platform_name: 'AscendIQ Enterprises',
+          platform_name: 'ElevateX Enterprises',
           maintenance_mode: 'true'
         });
 
       expect(res.status).toBe(200);
 
       const dbSetting = await db.get("SELECT value FROM system_settings WHERE key = 'platform_name'");
-      expect(dbSetting.value).toBe('AscendIQ Enterprises');
+      expect(dbSetting.value).toBe('ElevateX Enterprises');
     });
   });
 });
