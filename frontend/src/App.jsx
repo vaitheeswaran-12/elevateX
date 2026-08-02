@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import EmailVerificationPage from './pages/EmailVerificationPage.jsx';
+import JobsCatalogPage from './pages/JobsCatalogPage.jsx';
 
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import StudentDashboardLayout from './components/StudentDashboardLayout.jsx';
@@ -77,6 +78,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/jobs" element={<JobsCatalogPage />} />
 
                 {/* Student Dashboard Sub-Routes with Route Protections */}
                 <Route path="/student-dashboard" element={

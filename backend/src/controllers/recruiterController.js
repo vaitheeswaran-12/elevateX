@@ -27,6 +27,188 @@ export async function getCompanyProfile(req, res, next) {
   }
 }
 
+// ==========================================
+// 5. ADVANCED JOB MANAGEMENT ACTIONS
+// ==========================================
+
+export async function duplicateJob(req, res, next) {
+  try {
+    const recruiterId = req.user.id;
+    const { jobId } = req.params;
+
+    const job = await db.get('SELECT * FROM jobs WHERE id = ?', [jobId]);
+    if (!job) {
+      return res.status(404).json({ message: 'Job posting not found' });
+    }
+
+    if (job.recruiter_id !== recruiterId) {
+      return res.status(403).json({ message: 'Unauthorized: You do not own this job posting' });
+    }
+
+    const newId = uuidv4();
+    const sql = `
+      INSERT INTO jobs (
+        id, recruiter_id, company_name, company_logo, title, description, location,
+        skills_required, salary_range, job_type, experience_level, employment_type,
+        workplace_type, application_deadline, status, industry
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await db.run(sql, [
+      newId,
+      recruiterId,
+      job.company_name,
+      job.company_logo,
+      `${job.title} (Copy)`,
+      job.description,
+      job.location,
+      job.skills_required,
+      job.salary_range,
+      job.job_type,
+      job.experience_level,
+      job.employment_type,
+      job.workplace_type,
+      job.application_deadline,
+      'Draft', // duplicated postings start as Drafts
+      job.industry
+    ]);
+
+    res.status(201).json({ message: 'Job posting duplicated successfully as a draft!', jobId: newId });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function cloneJob(req, res, next) {
+  try {
+    const recruiterId = req.user.id;
+    const { jobId } = req.params;
+
+    const job = await db.get('SELECT * FROM jobs WHERE id = ?', [jobId]);
+    if (!job) {
+      return res.status(404).json({ message: 'Job posting not found' });
+    }
+
+    if (job.recruiter_id !== recruiterId) {
+      return res.status(403).json({ message: 'Unauthorized: You do not own this job posting' });
+    }
+
+    const newId = uuidv4();
+    const sql = `
+      INSERT INTO jobs (
+        id, recruiter_id, company_name, company_logo, title, description, location,
+        skills_required, salary_range, job_type, experience_level, employment_type,
+        workplace_type, application_deadline, status, industry
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await db.run(sql, [
+      newId,
+      recruiterId,
+      job.company_name,
+      job.company_logo,
+      `${job.title} (Clone)`,
+      job.description,
+      job.location,
+      job.skills_required,
+      job.salary_range,
+      job.job_type,
+      job.experience_level,
+      job.employment_type,
+      job.workplace_type,
+      job.application_deadline,
+      'Draft',
+      job.industry
+    ]);
+
+    res.status(201).json({ message: 'Job posting cloned successfully as a draft!', jobId: newId });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function archiveJob(req, res, next) {
+  try {
+    const recruiterId = req.user.id;
+    const { jobId } = req.params;
+
+    const job = await db.get('SELECT recruiter_id FROM jobs WHERE id = ?', [jobId]);
+    if (!job) {
+      return res.status(404).json({ message: 'Job posting not found' });
+    }
+
+    if (job.recruiter_id !== recruiterId) {
+      return res.status(403).json({ message: 'Unauthorized: You do not own this job posting' });
+    }
+
+    await db.run("UPDATE jobs SET status = 'Archived' WHERE id = ?", [jobId]);
+    res.status(200).json({ message: 'Job posting archived successfully!' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function bulkPublishJobs(req, res, next) {
+  try {
+    const recruiterId = req.user.id;
+    const { jobIds } = req.body;
+
+    if (!Array.isArray(jobIds) || jobIds.length === 0) {
+      return res.status(400).json({ message: 'jobIds must be a non-empty array' });
+    }
+
+    // Sanitize and double check ownership
+    const placeholders = jobIds.map(() => '?').join(',');
+    const checkCount = await db.get(
+      `SELECT COUNT(*) as count FROM jobs WHERE recruiter_id = ? AND id IN (${placeholders})`,
+      [recruiterId, ...jobIds]
+    );
+
+    if (parseInt(checkCount.count, 10) !== jobIds.length) {
+      return res.status(403).json({ message: 'Unauthorized or invalid jobIds specified' });
+    }
+
+    await db.run(
+      `UPDATE jobs SET status = 'Published' WHERE recruiter_id = ? AND id IN (${placeholders})`,
+      [recruiterId, ...jobIds]
+    );
+
+    res.status(200).json({ message: `Successfully published ${jobIds.length} jobs in bulk!` });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function bulkDeleteJobs(req, res, next) {
+  try {
+    const recruiterId = req.user.id;
+    const { jobIds } = req.body;
+
+    if (!Array.isArray(jobIds) || jobIds.length === 0) {
+      return res.status(400).json({ message: 'jobIds must be a non-empty array' });
+    }
+
+    const placeholders = jobIds.map(() => '?').join(',');
+    const checkCount = await db.get(
+      `SELECT COUNT(*) as count FROM jobs WHERE recruiter_id = ? AND id IN (${placeholders})`,
+      [recruiterId, ...jobIds]
+    );
+
+    if (parseInt(checkCount.count, 10) !== jobIds.length) {
+      return res.status(403).json({ message: 'Unauthorized or invalid jobIds specified' });
+    }
+
+    await db.run(
+      `DELETE FROM jobs WHERE recruiter_id = ? AND id IN (${placeholders})`,
+      [recruiterId, ...jobIds]
+    );
+
+    res.status(200).json({ message: `Successfully deleted ${jobIds.length} jobs in bulk!` });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function updateCompanyProfile(req, res, next) {
   try {
     const userId = req.user.id;
@@ -406,7 +588,7 @@ export async function updateCandidateStatus(req, res, next) {
       return res.status(400).json({ message: 'application_id and status are required' });
     }
 
-    const allowedStatuses = ['Applied', 'Shortlisted', 'Interviewing', 'Hired', 'Rejected'];
+    const allowedStatuses = ['Applied', 'Viewed', 'Shortlisted', 'Interviewing', 'Interview Scheduled', 'Hired', 'Offer', 'Rejected'];
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ message: `Status must be one of: ${allowedStatuses.join(', ')}` });
     }

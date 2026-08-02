@@ -158,4 +158,77 @@ describe('AscendIQ Recruiter Dashboard APIs', () => {
     expect(res.body.summary.totalApplicants).toBeGreaterThan(0);
     expect(Array.isArray(res.body.funnel)).toBe(true);
   });
+
+  test('POST /api/recruiter/jobs/:id/duplicate - Should duplicate job as a draft with (Copy) title', async () => {
+    const list = await request(app)
+      .get('/api/recruiter/jobs')
+      .set('Authorization', `Bearer ${recruiterToken}`);
+    const jobId = list.body.jobs[0].id;
+
+    const res = await request(app)
+      .post(`/api/recruiter/jobs/${jobId}/duplicate`)
+      .set('Authorization', `Bearer ${recruiterToken}`);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty('jobId');
+    expect(res.body.message).toContain('duplicated successfully');
+  });
+
+  test('POST /api/recruiter/jobs/:id/clone - Should clone job as a draft with (Clone) title', async () => {
+    const list = await request(app)
+      .get('/api/recruiter/jobs')
+      .set('Authorization', `Bearer ${recruiterToken}`);
+    const jobId = list.body.jobs[0].id;
+
+    const res = await request(app)
+      .post(`/api/recruiter/jobs/${jobId}/clone`)
+      .set('Authorization', `Bearer ${recruiterToken}`);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty('jobId');
+    expect(res.body.message).toContain('cloned successfully');
+  });
+
+  test('PUT /api/recruiter/jobs/:id/archive - Should mark status as Archived', async () => {
+    const list = await request(app)
+      .get('/api/recruiter/jobs')
+      .set('Authorization', `Bearer ${recruiterToken}`);
+    const jobId = list.body.jobs[0].id;
+
+    const res = await request(app)
+      .put(`/api/recruiter/jobs/${jobId}/archive`)
+      .set('Authorization', `Bearer ${recruiterToken}`);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.message).toContain('archived successfully');
+  });
+
+  test('POST /api/recruiter/jobs/bulk-publish and bulk-delete - Should perform batch updates', async () => {
+    // 1. Publish 2 jobs (one duplicated, one cloned)
+    const list = await request(app)
+      .get('/api/recruiter/jobs')
+      .set('Authorization', `Bearer ${recruiterToken}`);
+
+    // Pick draft/copied jobs
+    const idsToPublish = list.body.jobs.filter(j => j.status === 'Draft').map(j => j.id);
+
+    if (idsToPublish.length > 0) {
+      const resPub = await request(app)
+        .post('/api/recruiter/jobs/bulk-publish')
+        .set('Authorization', `Bearer ${recruiterToken}`)
+        .send({ jobIds: idsToPublish });
+
+      expect(resPub.statusCode).toEqual(200);
+      expect(resPub.body.message).toContain('Successfully published');
+
+      // 2. Delete those same jobs in bulk
+      const resDel = await request(app)
+        .post('/api/recruiter/jobs/bulk-delete')
+        .set('Authorization', `Bearer ${recruiterToken}`)
+        .send({ jobIds: idsToPublish });
+
+      expect(resDel.statusCode).toEqual(200);
+      expect(resDel.body.message).toContain('Successfully deleted');
+    }
+  });
 });

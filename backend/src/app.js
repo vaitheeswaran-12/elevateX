@@ -20,6 +20,7 @@ import instructorRoutes from './routes/instructorRoutes.js';
 import recruiterRoutes from './routes/recruiterRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import learningRoutes from './routes/learningRoutes.js';
+import publicJobsRoutes from './routes/publicJobsRoutes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
@@ -27,6 +28,7 @@ app.use('/api/instructor', instructorRoutes);
 app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/learning', learningRoutes);
+app.use('/api/jobs', publicJobsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({

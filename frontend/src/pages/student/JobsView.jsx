@@ -216,26 +216,72 @@ export default function JobsView() {
                   </div>
                 </div>
 
-                {/* Real-time status pipeline representation */}
-                <div className="flex items-center space-x-8 w-full md:w-auto">
-                  <div className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-400 font-bold uppercase tracking-wider">
-                    <span>Pipeline Progress:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] ${
-                      item.status === 'Applied' ? 'bg-blue-50 text-blue-600' :
-                      item.status === 'Shortlisted' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                {/* Real-time status pipeline representation with a high fidelity timeline view */}
+                <div className="w-full mt-4 pt-4 border-t border-gray-50 dark:border-gray-800/40">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Placement Process Tracker</span>
+                    <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black w-fit ${
+                      item.status === 'Rejected' ? 'bg-red-100 text-red-600 dark:bg-red-950/20 dark:text-red-400' :
+                      item.status === 'Offer' || item.status === 'Hired' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400' :
+                      'bg-primary/10 text-primary'
                     }`}>
-                      {item.status}
+                      Current Phase: {item.status}
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-1 shrink-0">
-                    {/* Visual status stepper */}
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" title="Applied"></div>
-                    <div className="w-8 h-1 bg-green-500"></div>
-                    <div className={`w-2.5 h-2.5 rounded-full ${item.status === 'Shortlisted' ? 'bg-green-500 animate-pulse' : 'bg-gray-200'}`} title="Shortlisted"></div>
-                    <div className="w-8 h-1 bg-gray-200"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-gray-200" title="Interview"></div>
-                  </div>
+                  {/* Progressive Multi-step Visual Stepper */}
+                  {item.status === 'Rejected' ? (
+                    <div className="flex items-center space-x-2 p-3 bg-red-50 dark:bg-red-950/10 rounded-xl text-red-500 text-xs font-semibold">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>This application has been declined. Try adjusting resume bounds or pursuing customized technical paths.</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-5 gap-1.5 relative pt-1">
+                      {[
+                        { label: 'Applied', key: 'Applied', index: 0 },
+                        { label: 'Viewed', key: 'Viewed', index: 1 },
+                        { label: 'Shortlisted', key: 'Shortlisted', index: 2 },
+                        { label: 'Interview Scheduled', key: 'Interview Scheduled', index: 3 },
+                        { label: 'Offer', key: 'Offer', index: 4 }
+                      ].map((step, idx) => {
+                        // Determine status index mapping
+                        const statusMap = {
+                          'Applied': 0,
+                          'Viewed': 1,
+                          'Shortlisted': 2,
+                          'Interviewing': 3,
+                          'Interview Scheduled': 3,
+                          'Hired': 4,
+                          'Offer': 4
+                        };
+                        const currentIdx = statusMap[item.status] !== undefined ? statusMap[item.status] : 0;
+                        const isCompleted = step.index <= currentIdx;
+                        const isActive = step.index === currentIdx;
+
+                        return (
+                          <div key={step.key} className="space-y-1.5">
+                            {/* Line & node visual representation */}
+                            <div className="flex items-center">
+                              <div className={`h-1.5 rounded-full flex-grow ${
+                                isCompleted ? 'bg-primary' : 'bg-gray-100 dark:bg-gray-800'
+                              }`} />
+                              <div className={`w-3.5 h-3.5 rounded-full shrink-0 -mx-0.5 border-2 ${
+                                isActive ? 'bg-primary border-white dark:border-gray-900 animate-pulse' :
+                                isCompleted ? 'bg-primary border-primary' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800'
+                              }`} />
+                            </div>
+                            {/* Text Description */}
+                            <p className={`text-[9px] font-bold text-center truncate ${
+                              isActive ? 'text-primary' :
+                              isCompleted ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'
+                            }`}>
+                              {step.label}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
               </div>
