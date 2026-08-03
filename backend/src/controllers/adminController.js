@@ -667,7 +667,7 @@ export async function getSettings(req, res, next) {
 
 export async function updateSettings(req, res, next) {
   try {
-    const updates = req.body; // e.g. { platform_name: "ElevateX Pro", support_email: "support@elevatex.io" }
+    const updates = req.body; // e.g. { platform_name: "AscendIQ Pro", support_email: "support@ascendiq.io" }
 
     for (const [key, value] of Object.entries(updates)) {
       // Use replace key statement on conflict

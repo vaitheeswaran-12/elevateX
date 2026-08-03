@@ -331,7 +331,7 @@ export async function submitQuizAnswers(req, res, next) {
             studentId,
             quiz.course_id,
             certificateId,
-            `https://elevatex.com/verify-certificate/${certificateId}`
+            `https://ascendiq.com/verify/${certificateId}`
           ]
         );
 

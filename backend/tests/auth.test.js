@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../src/app.js';
 import db from '../src/config/db.js';
 
-describe('ElevateX JWT Authentication Endpoints', () => {
+describe('AscendIQ JWT Authentication Endpoints', () => {
   // Clear any existing test user before starting
   beforeAll(async () => {
     try {

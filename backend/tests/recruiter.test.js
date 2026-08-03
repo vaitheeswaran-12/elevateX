@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../src/app.js';
 import seed from '../src/config/seed_data.js';
 
-describe('ElevateX Recruiter Dashboard APIs', () => {
+describe('AscendIQ Recruiter Dashboard APIs', () => {
   let recruiterToken = '';
   let studentToken = '';
 

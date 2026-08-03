@@ -3,7 +3,7 @@ import app from '../src/app.js';
 import db from '../src/config/db.js';
 import seed from '../src/config/seed_data.js';
 
-describe('ElevateX Course Learning Engine & Progress APIs', () => {
+describe('AscendIQ Course Learning Engine & Progress APIs', () => {
   let studentToken = '';
   let nonEnrolledToken = '';
   let enrolledStudentId = 'u_student_1';

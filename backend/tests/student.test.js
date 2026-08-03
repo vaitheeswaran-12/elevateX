@@ -4,7 +4,7 @@ import db from '../src/config/db.js';
 
 import seed from '../src/config/seed_data.js';
 
-describe('ElevateX Student Dashboard APIs', () => {
+describe('AscendIQ Student Dashboard APIs', () => {
   let studentToken = '';
 
   // Retrieve active token by logging in as the seeded student before testing

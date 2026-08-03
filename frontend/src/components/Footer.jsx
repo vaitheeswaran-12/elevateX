@@ -80,7 +80,7 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-2.5">
               <Mail className="w-5 h-5 text-primary shrink-0" />
-              <span>support@elevatex.com</span>
+              <span>support@ascendiq.com</span>
             </div>
             <div className="flex items-center space-x-2.5">
               <Phone className="w-5 h-5 text-primary shrink-0" />
