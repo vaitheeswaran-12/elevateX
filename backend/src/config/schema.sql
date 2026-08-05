@@ -1,5 +1,5 @@
--- PostgreSQL Database Schema for AscendIQ
--- Normalized schema for courses, quizzes, certificates, profiles, and job listings
+-- PostgreSQL Database Schema for ElevateX (formerly AscendIQ)
+-- Normalized production-ready schema for courses, quizzes, assignments, certificates, profiles, and job listings
 
 -- 1. Users Table
 CREATE TABLE IF NOT EXISTS users (
@@ -66,6 +66,12 @@ CREATE TABLE IF NOT EXISTS courses (
     reviews_count INTEGER DEFAULT 0,
     approval_status TEXT DEFAULT 'Approved' CHECK(approval_status IN ('Pending', 'Approved', 'Rejected')),
     is_featured INTEGER DEFAULT 0 CHECK(is_featured IN (0, 1)),
+    price TEXT DEFAULT '$0',
+    banner_url TEXT,
+    tags TEXT DEFAULT '[]', -- JSON string array
+    outcomes TEXT DEFAULT '[]', -- JSON string array
+    requirements TEXT DEFAULT '[]', -- JSON string array
+    status TEXT DEFAULT 'Draft' CHECK (status IN ('Draft', 'Published')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -90,6 +96,8 @@ CREATE TABLE IF NOT EXISTS lessons (
     sort_order INTEGER NOT NULL,
     resources TEXT, -- JSON list of resources/links
     notes TEXT, -- MD content or text
+    pdf_url TEXT,
+    is_preview INTEGER DEFAULT 0 CHECK (is_preview IN (0, 1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (module_id) REFERENCES course_modules(id) ON DELETE CASCADE
 );
@@ -100,6 +108,8 @@ CREATE TABLE IF NOT EXISTS quizzes (
     course_id TEXT NOT NULL,
     title TEXT NOT NULL,
     timer_minutes INTEGER DEFAULT 15,
+    passing_percentage INTEGER DEFAULT 80,
+    randomize_questions INTEGER DEFAULT 0 CHECK (randomize_questions IN (0, 1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
@@ -213,6 +223,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     student_name TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
     comment TEXT,
+    reply_comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
@@ -236,24 +247,35 @@ CREATE TABLE IF NOT EXISTS system_settings (
     value TEXT NOT NULL
 );
 
--- ==========================================
--- 18. Database Indexes for Foreign Keys (Production performance)
--- ==========================================
-CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON courses(instructor_id);
-CREATE INDEX IF NOT EXISTS idx_course_modules_course_id ON course_modules(course_id);
-CREATE INDEX IF NOT EXISTS idx_lessons_module_id ON lessons(module_id);
-CREATE INDEX IF NOT EXISTS idx_quizzes_course_id ON quizzes(course_id);
-CREATE INDEX IF NOT EXISTS idx_quiz_questions_quiz_id ON quiz_questions(quiz_id);
-CREATE INDEX IF NOT EXISTS idx_certificates_student_id ON certificates(student_id);
-CREATE INDEX IF NOT EXISTS idx_certificates_course_id ON certificates(course_id);
-CREATE INDEX IF NOT EXISTS idx_jobs_recruiter_id ON jobs(recruiter_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_course_id ON reviews(course_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_student_id ON reviews(student_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_action_type ON audit_logs(action_type);
+-- 18. Assignments Table
+CREATE TABLE IF NOT EXISTS assignments (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    deadline TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
 
--- 19. Student Lesson Notes Table
+-- 19. Assignment Submissions Table
+CREATE TABLE IF NOT EXISTS assignment_submissions (
+    id TEXT PRIMARY KEY,
+    assignment_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    file_url TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Submitted' CHECK(status IN ('Submitted', 'Evaluated', 'Pending')),
+    grade TEXT,
+    feedback TEXT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(assignment_id, student_id)
+);
+
+-- 20. Student Lesson Notes Table
 CREATE TABLE IF NOT EXISTS student_notes (
     id TEXT PRIMARY KEY,
     student_id TEXT NOT NULL,
@@ -264,22 +286,6 @@ CREATE TABLE IF NOT EXISTS student_notes (
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
     UNIQUE(student_id, lesson_id)
-);
-
--- 20. Assignment Submissions Table
-CREATE TABLE IF NOT EXISTS assignment_submissions (
-    id TEXT PRIMARY KEY,
-    course_id TEXT NOT NULL,
-    student_id TEXT NOT NULL,
-    assignment_url TEXT NOT NULL,
-    submission_text TEXT,
-    grade TEXT, -- e.g. 'A', 'B', 'Pass', or percentage score e.g. '95'
-    feedback TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE(student_id, course_id)
 );
 
 -- 21. Quiz Attempts Table
@@ -296,9 +302,27 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 );
 
+-- ==========================================
+-- Database Indexes for Production Performance
+-- ==========================================
+CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON courses(instructor_id);
+CREATE INDEX IF NOT EXISTS idx_course_modules_course_id ON course_modules(course_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_module_id ON lessons(module_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_course_id ON quizzes(course_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_questions_quiz_id ON quiz_questions(quiz_id);
+CREATE INDEX IF NOT EXISTS idx_certificates_student_id ON certificates(student_id);
+CREATE INDEX IF NOT EXISTS idx_certificates_course_id ON certificates(course_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_recruiter_id ON jobs(recruiter_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_course_id ON reviews(course_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_student_id ON reviews(student_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action_type ON audit_logs(action_type);
 CREATE INDEX IF NOT EXISTS idx_student_notes_student_id ON student_notes(student_id);
 CREATE INDEX IF NOT EXISTS idx_student_notes_lesson_id ON student_notes(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_assignment_submissions_student_id ON assignment_submissions(student_id);
-CREATE INDEX IF NOT EXISTS idx_assignment_submissions_course_id ON assignment_submissions(course_id);
+CREATE INDEX IF NOT EXISTS idx_assignment_submissions_assignment_id ON assignment_submissions(assignment_id);
 CREATE INDEX IF NOT EXISTS idx_quiz_attempts_student_id ON quiz_attempts(student_id);
 CREATE INDEX IF NOT EXISTS idx_quiz_attempts_quiz_id ON quiz_attempts(quiz_id);

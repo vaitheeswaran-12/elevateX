@@ -78,7 +78,7 @@ def run_verification(page):
     # Navigate to Certificate verification page directly to check
     print("Verifying Certificate Verification Page...")
     # Seed certificate ID is 'cert_1'
-    page.goto("http://localhost:3000/verify-certificate/cert_1")
+    page.goto("http://localhost:3000/verify/cert_1")
     page.wait_for_timeout(1500)
     page.screenshot(path="/home/jules/verification/screenshots/7_certificate_verification.png")
     page.wait_for_timeout(500)

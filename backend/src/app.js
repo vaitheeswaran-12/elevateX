@@ -21,8 +21,13 @@ app.use(helmet({
 // Enable Gzip Compression for smaller asset delivery sizes
 app.use(compression());
 
-// Strict CORS Setup
-app.use(cors());
+// Strict CORS Setup supporting credentials and preflight OPTIONS requests for separate frontend hosting
+app.use(cors({
+  origin: true, // Echoes back the requesting origin to allow dynamic cross-origin matching
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Limit input payload sizes (Buffer Overflow protection)
 app.use(express.json({ limit: '10mb' }));

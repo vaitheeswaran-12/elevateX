@@ -168,7 +168,7 @@ export default function CertificatesView() {
                   <span>Copy Link</span>
                 </button>
                 <a
-                  href={`/verify-credential?id=${activeVerify.certificate_id}`}
+                  href={`/verify/${activeVerify.certificate_id}`}
                   target="_blank"
                   rel="noreferrer"
                   className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-xl shadow-premium transition-colors flex items-center space-x-1"
